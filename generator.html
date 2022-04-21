@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="en-US">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <meta charset="utf-8">
+    <title>2022 Newsletter Generator</title>
+    <style type="text/css">
+        #newsletter-template-iframe {
+            height: calc(100vh - 100px);
+        }
+        .blurb {
+            width: 600px;
+            height: 100px;
+        }
+        
+        .image-section {
+            margin-left: 100px;
+            border: 1px solid #c5c5c5;
+            width: 630px;
+            padding: 0px 10px;
+            background-color: #eee;
+        }
+        
+        .url-input,
+        .title,
+        .src-input {
+            width: 600px;
+        }
+        textarea {
+            font-family: georgia;
+            font-size: 16px;
+            line-height: 165%;
+        }
+    </style>
+</head>
+
+<body style="max-width:1000px;margin:0 auto;">
+    <h2>Paste code from website below</h2>
+    <form id="the-form">
+        <textarea type="text" id="code-input" name="original-code" style="width:100%; height:300px;" required></textarea>
+        <p>Enter date as YYMMDD
+            <input id="date-input" type="text" name="date-input" required>
+        </p>
+        <p>Testing? Enter A or B
+            <input id="test-input" type="text" name="test-input">
+        </p>
+        <h3>Snippet text</h3>
+        <p>This text shows below or next to the subject as if it's the first line of the email. Defaults to "Your Weekly Development Update from @CGDev," but it's better to be clever.</p>
+        <p>&nbsp; &nbsp; &nbsp; &nbsp;
+            <textarea name="snippet" class="title" id="snippet" type="text"></textarea>
+        </p>
+        <h3>Features</h3>
+        <p>Enter titles, blurbs, and URLs for the three features</p>
+        <h4>Feature 1</h4>
+        <p>&nbsp;Title
+            <textarea required class="title" id="feature-title-0" name="feature-title-0" type="text"></textarea>
+        </p>
+        <p>Blurb
+            <textarea required class="blurb" id="feature-text-0" name="feature-text-0" type="text"></textarea>
+        </p>
+        <p>&nbsp;&nbsp;URL (with https://)
+            <input required class="url-input" id="feature-url-0" name="feature-url-0" type="text">
+        </p>
+        <h4>Feature 2</h4>
+        <p>&nbsp;Title
+            <textarea required class="title" id="feature-title-1" name="feature-title-1" type="text"></textarea>
+        </p>
+        <p>Blurb
+            <textarea required class="blurb" id="feature-text-1" name="feature-text-1" type="text"></textarea>
+        </p>
+        <p>&nbsp;&nbsp;URL (with https://)
+            <input required class="url-input" id="feature-url-1" name="feature-url-1" type="text">
+        </p>
+        <h4>Feature 3</h4>
+        <p>&nbsp;Title
+            <textarea required class="title" id="feature-title-2" name="feature-title-2" type="text"></textarea>
+        </p>
+        <p>Blurb
+            <textarea required class="blurb" id="feature-text-2" name="feature-text-2" type="text"></textarea>
+        </p>
+        <p>&nbsp;&nbsp;URL (with https://)
+            <input required class="url-input" id="feature-url-2" name="feature-url-2" type="text">
+        </p>
+        <input type="submit">
+    </form>
+    <div id="render-code" style="display:none;">
+    </div>
+    <h2>Preview</h2>
+    <div id="new-code">
+        <iframe id="newsletter-template-iframe" src="template.html" width="100%" frameborder="0"></iframe>
+    </div>
+    <h2>Copy the code below (this is the entire HTML for the email)</h2><textarea id="code-output" name="code-output"></textarea>
+    <script>
+        const form = document.getElementById('the-form');
+        const iframe = document.getElementById('newsletter-template-iframe');
+        form.addEventListener('submit', submitHandler);
+        function submitHandler(e){
+            e.preventDefault();
+            const formData = new FormData(this);
+            console.log(formData, iframe.contentDocument);
+            setFeatures(formData)
+            // access iframed doc by contentDocument
+            // put pasted-in code into a doc fragment and query the elements from there
+
+        }
+        function setFeatures(formData){
+            const _document = iframe.contentDocument;
+            const features = [0,1,2].map(n => ({
+                title: formData.get(`feature-title-${n}`),
+                blurb: formData.get(`feature-text-${n}`),
+                url: formData.get(`feature-url-${n}`)
+            }));
+            features.forEach((f,i) => {
+                _document.getElementById(`feature-${i + 1}-title`).textContent = f.title;
+                _document.getElementById(`feature-${i + 1}-body`).textContent = f.blurb;
+                _document.getElementById(`feature-${i + 1}-link`).href = f.url;
+            })
+        }
+    </script>
+</body>
+
+</html>
