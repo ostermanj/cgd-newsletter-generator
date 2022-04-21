@@ -98,10 +98,11 @@
             e.preventDefault();
             const formData = new FormData(this);
             console.log(formData, iframe.contentDocument);
-            setFeatures(formData)
+            setFeatures(formData);
+            setOtherFields(formData);
             // access iframed doc by contentDocument
             // put pasted-in code into a doc fragment and query the elements from there
-
+            
         }
         function setFeatures(formData){
             const _document = iframe.contentDocument;
@@ -115,6 +116,108 @@
                 _document.getElementById(`feature-${i + 1}-body`).textContent = f.blurb;
                 _document.getElementById(`feature-${i + 1}-link`).href = f.url;
             })
+        }
+        function setOtherFields(formData){
+            const _document = iframe.contentDocument;
+            const parser = new DOMParser();
+            const parsed = parser.parseFromString(formData.get('original-code'), 'text/html');
+            console.log(parsed);
+            // EVENTS
+            const eventSection = parsed.getElementById('enewsletter-events');
+            const eventCount = eventSection.children.length;
+            for (let i = 0; i < eventCount; i++){
+                const month = parsed.getElementById(`event-${i + 1}-event_month`).textContent.trim();
+                const day = parsed.getElementById(`event-${i + 1}-event_day`).textContent.trim();
+                const date = month + (month == 'May' ? ' ' : '. ') + day;
+                const title = parsed.getElementById(`event-${i + 1}-title`).textContent.trim();
+                const link = parsed.getElementById(`event-${i + 1}-url`).textContent.trim();
+                const dateTarget = _document.querySelector(`#event-${i + 1} strong`);
+                const titleTarget = _document.querySelector(`#event-${i + 1} a`);
+                dateTarget.textContent = date;
+                titleTarget.textContent = title;
+                titleTarget.href = link;
+            }
+            // REMOVE EXTRAS. the template has 4 events but there won't always be 4 events scheduled
+            const extraEvents = 4 - eventCount;
+            if (extraEvents > 0 && extraEvents < 4){
+                let arr = [];
+                arr.length = extraEvents;
+                arr.fill(0);
+                arr.forEach((_,i) => {
+                    const target = _document.getElementById(`event-${4 - i}`);
+                    target.remove();
+                })
+            }
+            if ( extraEvents == 4 ){
+                let table = _document.getElementById('events-table');
+                table.remove();
+            }
+            
+            //PODCASTS
+            
+            const pcSection = parsed.getElementById('enewsletter-podcasts');
+            const pcCount = pcSection.children.length;
+            for (let i = 0; i < pcCount; i++){
+                const date = parsed.getElementById(`podcast-${i + 1}-date`).textContent.trim();
+                const dateSplit = date.split(' ');
+                const month = dateSplit[0];
+                const day = parseInt(dateSplit[1]);
+                const dateDisplay = (month == 'May' ? 'May' : month.slice(0,3) + '.') + ' ' + day;
+                
+                const title = parsed.getElementById(`podcast-${i + 1}-title`).textContent.trim();
+                const link = parsed.getElementById(`podcast-${i + 1}-url`).textContent.trim();
+                const dateTarget = _document.querySelector(`#podcast-${i + 1} strong`);
+                const titleTarget = _document.querySelector(`#podcast-${i + 1} a`);
+                dateTarget.textContent = dateDisplay;
+                titleTarget.textContent = title;
+                titleTarget.href = link;
+            }
+            
+
+            //RESEARCH
+            const researchSection = parsed.getElementById('enewsletter-publications');
+            const researchCount = researchSection.children.length;
+            for (let i = 0; i < researchCount; i++) {
+                const date = parsed.getElementById(`publication-${i + 1}-date`).textContent.trim();
+                const dateSplit = date.split(' ');
+                const month = dateSplit[0];
+                const day = parseInt(dateSplit[1]);
+                const dateDisplay = (month == 'May' ? 'May' : month.slice(0, 3) + '.') + ' ' + day;
+
+                const title = parsed.getElementById(`publication-${i + 1}-title`).textContent.trim();
+                const link = parsed.getElementById(`publication-${i + 1}-url`).textContent.trim();
+                const author = parsed.getElementById(`publication-${i + 1}-authors`).textContent.trim()
+                const dateTarget = _document.querySelector(`#publication-${i + 1}-date strong`);
+                const titleTarget = _document.querySelector(`#publication-${i + 1}-link`);
+                const authorTarget = _document.querySelector(`#publication-${i + 1}-author`);
+                dateTarget.textContent = dateDisplay;
+                titleTarget.textContent = title;
+                titleTarget.href = link;
+                authorTarget.textContent = author;
+            }
+            
+            
+            //BLOGS
+            const blogsSection = parsed.getElementById('enewsletter-blogs');
+            const blogsCount = blogsSection.children.length;
+            for (let i = 0; i < blogsCount; i++) {
+                const date = parsed.getElementById(`blog-${i + 1}-date`).textContent.trim();
+                const dateSplit = date.split(' ');
+                const month = dateSplit[0];
+                const day = parseInt(dateSplit[1]);
+                const dateDisplay = (month == 'May' ? 'May' : month.slice(0, 3) + '.') + ' ' + day;
+
+                const title = parsed.getElementById(`blog-${i + 1}-title`).textContent.trim();
+                const link = parsed.getElementById(`blog-${i + 1}-url`).textContent.trim();
+                const author = parsed.getElementById(`blog-${i + 1}-authors`).textContent.trim()
+                const dateTarget = _document.querySelector(`#blog-${i + 1}-date`);
+                const titleTarget = _document.querySelector(`#blog-${i + 1}-link`);
+                const authorTarget = _document.querySelector(`#blog-${i + 1}-author`);
+                dateTarget.textContent = dateDisplay;
+                titleTarget.textContent = title;
+                titleTarget.href = link;
+                authorTarget.textContent = author;
+            }
         }
     </script>
 </body>
