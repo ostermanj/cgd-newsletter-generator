@@ -31,6 +31,13 @@
             font-size: 16px;
             line-height: 165%;
         }
+        label {
+            display: block;
+        }
+        label:has(input[required])::after,label:has(textarea[required])::after {
+            content: "*"
+        }
+        /* :has() pseudo class only supported in Safari as of Apr 2022, but it will come to other browsers */
     </style>
 </head>
 
@@ -38,49 +45,52 @@
     <h2>Paste code from website below</h2>
     <form id="the-form">
         <textarea type="text" id="code-input" name="original-code" style="width:100%; height:300px;" required></textarea>
-        <p>Enter date as YYMMDD
-            <input id="date-input" type="text" name="date-input" required>
-        </p>
-        <p>Testing? Enter A or B
-            <input id="test-input" type="text" name="test-input">
-        </p>
+        <label>Date of newsletter send
+            <input placeholder="YYMMDD" id="date-input" type="date" name="date-input" min="2022-04-25" required>
+        </label>
+        <label>Testing? Enter A or B
+            <input id="test-input" type="text" name="test-input" pattern="[AaBb]">
+        </label>
         <h3>Snippet text</h3>
-        <p>This text shows below or next to the subject as if it's the first line of the email. Defaults to "Your Weekly Development Update from @CGDev," but it's better to be clever.</p>
-        <p>&nbsp; &nbsp; &nbsp; &nbsp;
-            <textarea name="snippet" class="title" id="snippet" type="text"></textarea>
-        </p>
+        <p>The snippet shows below or next to the subject as if it's the first line of the email. Defaults to "Your Weekly Development Update from CGD" but it's better to be clever.</p>
+        <label>
+            Snippet
+            <textarea placeholder="Your Weekly Development Update from CGD" name="snippet" class="title" id="snippet" type="text"></textarea>
+        </label>
         <h3>Features</h3>
         <p>Enter titles, blurbs, and URLs for the three features</p>
         <h4>Feature 1</h4>
-        <p>&nbsp;Title
+        <label>Title
             <textarea required class="title" id="feature-title-0" name="feature-title-0" type="text"></textarea>
-        </p>
-        <p>Blurb
+        </label>
+        <label>Blurb
             <textarea required class="blurb" id="feature-text-0" name="feature-text-0" type="text"></textarea>
-        </p>
-        <p>&nbsp;&nbsp;URL (with https://)
-            <input required class="url-input" id="feature-url-0" name="feature-url-0" type="text">
-        </p>
+        </label>
+        <label>URL (with https://)
+            <input placeholder="https://www.cgdev.org/lorem-ipsum" pattern="https://.*" required class="url-input" id="feature-url-0" name="feature-url-0" type="text">
+        </label>
         <h4>Feature 2</h4>
-        <p>&nbsp;Title
+        <label>Title
             <textarea required class="title" id="feature-title-1" name="feature-title-1" type="text"></textarea>
-        </p>
-        <p>Blurb
+        </label>
+        <label>Blurb
             <textarea required class="blurb" id="feature-text-1" name="feature-text-1" type="text"></textarea>
-        </p>
-        <p>&nbsp;&nbsp;URL (with https://)
-            <input required class="url-input" id="feature-url-1" name="feature-url-1" type="text">
-        </p>
+        </label>
+        <label>URL (with https://)
+            <input placeholder="https://www.cgdev.org/lorem-ipsum" pattern="https://.*" required class="url-input" id="feature-url-1"
+                name="feature-url-1" type="text">
+        </label>
         <h4>Feature 3</h4>
-        <p>&nbsp;Title
+        <label>Title
             <textarea required class="title" id="feature-title-2" name="feature-title-2" type="text"></textarea>
-        </p>
-        <p>Blurb
+        </label>
+        <label>Blurb
             <textarea required class="blurb" id="feature-text-2" name="feature-text-2" type="text"></textarea>
-        </p>
-        <p>&nbsp;&nbsp;URL (with https://)
-            <input required class="url-input" id="feature-url-2" name="feature-url-2" type="text">
-        </p>
+        </label>
+        <label>URL (with https://)
+            <input placeholder="https://www.cgdev.org/lorem-ipsum" pattern="https://.*" required class="url-input" id="feature-url-2"
+                name="feature-url-2" type="text">
+        </label>
         <input type="submit">
     </form>
     <div id="render-code" style="display:none;">
@@ -98,10 +108,10 @@
             e.preventDefault();
             const formData = new FormData(this);
             console.log(formData, iframe.contentDocument);
+            console.log(formData.get('date-input'))
             setFeatures(formData);
             setOtherFields(formData);
-            // access iframed doc by contentDocument
-            // put pasted-in code into a doc fragment and query the elements from there
+            addUTMCodes(formData);
             
         }
         function setFeatures(formData){
@@ -122,6 +132,9 @@
             const parser = new DOMParser();
             const parsed = parser.parseFromString(formData.get('original-code'), 'text/html');
             console.log(parsed);
+            //SNIPPET 
+
+            _document.getElementById('snippet-text').textContent = formData.get('snippet');
             // EVENTS
             const eventSection = parsed.getElementById('enewsletter-events');
             const eventCount = eventSection.children.length;
@@ -218,6 +231,33 @@
                 titleTarget.href = link;
                 authorTarget.textContent = author;
             }
+        }
+        function addUTMCodes(formData){
+            const _document = iframe.contentDocument;
+            const utmDate = formData.get('date-input').replace(/-/g,'');
+            const ab = formData.get('test-input')
+            console.log(ab);
+            const links = _document.querySelectorAll('a');
+            Array.from(links).forEach(link => {
+                //debugger;
+                var url = link.href;
+                // CHANGING ALL CGDEV TO WWW.CGDEV
+                console.log(1, url)
+                url = url.replace(/https:\/\/(cgdev|international\.cgdev)/g, 'https://www.cgdev');
+                if (ab === 'a' || ab === 'A' || ab === 'b' || ab === 'B') {
+                    let addUTM;
+                    if (ab === 'a' || ab === 'A') {
+                        addUTM = '&utm_content=alpha';
+                    } else if (ab === 'b' || ab === 'B') {
+                        addUTM = '&utm_content=beta';
+                    };
+                    url = url.replace(/https:\/\/www.cgdev.org.*/g, url + '?utm_source=' + utmDate + '&utm_medium=cgd_email' + addUTM + '&utm_campaign=cgd_weekly');
+                } else {
+                    url = url.replace(/https:\/\/www.cgdev.org.*/g, url + '?utm_source=' + utmDate + '&utm_medium=cgd_email&utm_campaign=cgd_weekly');
+                }
+                console.log(2, url)
+                link.href = url;
+            });
         }
     </script>
 </body>
