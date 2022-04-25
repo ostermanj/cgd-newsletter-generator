@@ -4,15 +4,63 @@
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
     <meta charset="utf-8">
     <title>2022 Newsletter Generator</title>
+    <link rel="stylesheet"
+        href="https://www.cgdev.org/sites/default/files/fontyourface/local_fonts/sofia_pro_regular/font.css" media="all">
+    <link rel="stylesheet"
+        href="https://www.cgdev.org/sites/default/files/fontyourface/local_fonts/sofia_pro_italic/font.css" media="all">
+    <link rel="stylesheet"
+        href="https://www.cgdev.org/sites/default/files/fontyourface/local_fonts/sofia_pro_light/font.css" media="all">
+    <link rel="stylesheet"
+        href="https://www.cgdev.org/sites/default/files/fontyourface/local_fonts/sofia_pro_medium/font.css" media="all">
+    <link rel="stylesheet"
+        href="https://www.cgdev.org/sites/default/files/fontyourface/local_fonts/sofia_pro_semi_bold/font.css" media="all">
+    <link rel="stylesheet" href="https://www.cgdev.org/sites/default/files/fontyourface/local_fonts/sofia_pro_bold/font.css"
+        media="all">
+    <link rel="stylesheet" href="https://www.cgdev.org/sites/default/files/fontyourface/local_fonts/bitter/font.css"
+        media="all">
+    <link rel="stylesheet" href="https://www.cgdev.org/sites/default/files/fontyourface/local_fonts/bitter_bold/font.css"
+        media="all">
     <style type="text/css">
+        html {
+            font-family: 'Bitter';
+            line-height: 1.5;
+
+        }
+        body {
+            padding-top: 50px;
+        }
+        header {
+            position: fixed;
+            display: flex;
+            top: 0;;
+            left: 0;
+            height: 50px;
+            width: 100%;
+            color: #fff;
+            background-color: #0B4C5B;
+            justify-content: center;
+            align-items: center;
+        }
+        h1,h2,h3,h4,h5,h6 {
+            font-family: 'Sofia Pro';
+        }
+        h1 {
+            padding: 0 1em;
+        }
         #newsletter-template-iframe {
             height: calc(100vh - 100px);
+        }
+        p {
+            max-width: 675px;
         }
         .blurb {
             width: 600px;
             height: 100px;
         }
-        
+        #code-output {
+            width: 600px;
+            height: 500px;
+        }
         .image-section {
             margin-left: 100px;
             border: 1px solid #c5c5c5;
@@ -25,6 +73,17 @@
         .title,
         .src-input {
             width: 600px;
+        }
+        input, textarea {
+            display: block;
+        }
+        input[type=submit]{
+            appearance: none;
+            border-width: 0;
+            background-color: #0B4C5B;
+            color:#fff;
+            margin-top: 1em;
+            padding: 0.3em 0.5em;
         }
         textarea {
             font-family: georgia;
@@ -39,9 +98,13 @@
         }
         /* :has() pseudo class only supported in Safari as of Apr 2022, but it will come to other browsers */
     </style>
+
 </head>
 
 <body style="max-width:1000px;margin:0 auto;">
+    <header>
+        <h1>Newsletter Generator</h1>
+    </header>
     <h2>Paste code from website below</h2>
     <form id="the-form">
         <textarea type="text" id="code-input" name="original-code" style="width:100%; height:300px;" required></textarea>
@@ -91,18 +154,17 @@
             <input placeholder="https://www.cgdev.org/lorem-ipsum" pattern="https://.*" required class="url-input" id="feature-url-2"
                 name="feature-url-2" type="text">
         </label>
-        <input type="submit">
+        <input type="submit" value="Submit">
     </form>
-    <div id="render-code" style="display:none;">
-    </div>
     <h2>Preview</h2>
     <div id="new-code">
         <iframe id="newsletter-template-iframe" src="template.html" width="100%" frameborder="0"></iframe>
     </div>
-    <h2>Copy the code below (this is the entire HTML for the email)</h2><textarea id="code-output" name="code-output"></textarea>
+    <h2>Copy the code below (this is the entire HTML for the email)</h2><textarea width=600 id="code-output" name="code-output"></textarea>
     <script>
         const form = document.getElementById('the-form');
         const iframe = document.getElementById('newsletter-template-iframe');
+        const output = document.getElementById('code-output');
         form.addEventListener('submit', submitHandler);
         function submitHandler(e){
             e.preventDefault();
@@ -112,7 +174,7 @@
             setFeatures(formData);
             setOtherFields(formData);
             addUTMCodes(formData);
-            
+            exportCode();
         }
         function setFeatures(formData){
             const _document = iframe.contentDocument;
@@ -258,6 +320,11 @@
                 console.log(2, url)
                 link.href = url;
             });
+        }
+        function exportCode(){
+            const _document = iframe.contentDocument;
+            const html = _document.documentElement.outerHTML;
+            output.value = html;
         }
     </script>
 </body>
