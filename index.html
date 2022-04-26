@@ -323,6 +323,7 @@
         }
         function exportCode(){
             const _document = iframe.contentDocument;
+            _document.getElementById('view-online').href = "{{View_Online}}";
             const html = _document.documentElement.outerHTML;
             output.value = html;
         }
