@@ -326,6 +326,7 @@
             _document.getElementById('view-online').href = "{{View_Online}}";
             _document.getElementById('email-preference').href = "{{EmailPreferenceCenter}}";
             _document.getElementById('unsubscribe').href = "{{Unsubscribe}}";
+            _document.getElementById('mail-to').href = "mailto:{{Recipient.Email}}";
             const html = _document.documentElement.outerHTML;
             output.value = html;
         }
