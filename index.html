@@ -324,6 +324,8 @@
         function exportCode(){
             const _document = iframe.contentDocument;
             _document.getElementById('view-online').href = "{{View_Online}}";
+            _document.getElementById('email-preference').href = "{{EmailPreferenceCenter}}";
+            _document.getElementById('unsubscribe').href = "{{Unsubscribe}}";
             const html = _document.documentElement.outerHTML;
             output.value = html;
         }
